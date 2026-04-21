@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FlowerApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98f6c48e4bdfaca2ebf4260d989742caeb9ce39b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75561a560db9169f9e6399bf6153411e8a725ed0")]
 [assembly: System.Reflection.AssemblyProductAttribute("FlowerApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FlowerApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

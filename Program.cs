@@ -10,12 +10,23 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DatabaseContext>();
 
+// Настраиваем CORS для работы и с localhost, и с Render
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowAllOrigins",
+    builder =>
+    {
+        // Для продакшн - разрешаем любые источники (временно)
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+    
+    // Оставляем для локальной разработки
     options.AddPolicy("AllowAngularOrigins",
     builder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        builder.WithOrigins("http://localhost:4200", "http://localhost:9876")
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
@@ -24,20 +35,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Настройка статических файлов ДО app.Run()
+app.UseStaticFiles(); // Для стандартных статических файлов
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseCors("AllowAngularOrigins");
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
-
+// Для загруженных файлов (uploads)
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -45,3 +46,31 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 
+// Swagger - включаем для всех окружений (временно для отладки)
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// Для продакшн на Render - отключаем HTTPS редирект (временно)
+// app.UseHttpsRedirection(); 
+
+// Выбираем CORS политику в зависимости от окружения
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowAngularOrigins");
+}
+else
+{
+    app.UseCors("AllowAllOrigins");
+}
+
+app.UseAuthorization();
+app.MapControllers();
+
+// Простой тестовый эндпоинт для проверки работоспособности
+app.MapGet("/", () => new { 
+    status = "API is running", 
+    environment = app.Environment.EnvironmentName,
+    time = DateTime.Now 
+});
+
+app.Run();
