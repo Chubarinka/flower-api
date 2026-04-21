@@ -160,6 +160,39 @@ public class ProductsController : ControllerBase
             });
         }
     }
+    
+    // DELETE: api/products/sku/{sku}
+    [HttpDelete("sku/{sku}")]
+    public async Task<IActionResult> DeleteProductBySku(string sku)
+    {
+        try
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.SKU == sku);
+            if (product == null)
+            {
+                return NotFound(new { message = $"Товар с артикулом {sku} не найден" });
+            }
+
+            // Удаляем изображение, если оно есть
+            if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                DeleteImage(product.ImageUrl);
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"Товар '{product.Name}' успешно удален",
+                deletedProduct = new { product.Id, product.Name, product.SKU }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "Ошибка при удалении товара", details = ex.Message });
+        }
+    }
+    
 
     // GET: api/products/sku/{sku}
     [HttpGet("sku/{sku}")]
