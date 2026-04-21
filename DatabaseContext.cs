@@ -13,7 +13,19 @@ public class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=flowerdb;Username=postgres;Password=Roza2015");
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Сначала пытаемся взять строку подключения из переменных окружения (для Render)
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            
+            // Если переменной нет - используем локальную строку для разработки
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                connectionString = "Host=localhost;Port=5432;Database=flowerdb;Username=postgres;Password=Roza2015";
+            }
+            
+            optionsBuilder.UseNpgsql(connectionString);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
